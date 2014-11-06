@@ -1,0 +1,10 @@
+<launch>
+  <arg name="port" default="/dev/ttyUSB0"/>
+  <arg name="print" default="false" />
+    
+  <node pkg="necessity_serial" type="serial_node" name="serial_io" output="screen" >
+    <param name="port"  value="$(arg port)" />
+    <param name="print"  value="$(arg print)" />
+  </node>
+
+</launch>
