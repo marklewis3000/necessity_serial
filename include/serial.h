@@ -14,9 +14,6 @@ typedef enum {
     ERR_LOW_BATTERY,
     ERR_USB_RECEIVE_BUFFER_OVERRUN,
     ERR_USB_TRANSMIT_BUFFER_OVERRUN,
-    ERR_BLUETOOTH_RECEIVE_BUFFER_OVERRUN,
-    ERR_BLUETOOTH_TRANSMIT_BUFFER_OVERRUN,
-    ERR_SD_CARD_WRITE_BUFFER_OVERRUN,
     ERR_TOO_FEW_BYTES_IN_PACKET,
     ERR_TOO_MANY_BYTES_IN_PACKET,
     ERR_INVALID_CHECKSUM,
@@ -26,11 +23,6 @@ typedef enum {
     ERR_UART_RECEIVE_BUFFER_OVERRUN,
     ERR_UART_TRANSMIT_BUFFER_OVERRUN,
 } ErrorCode;
-
-struct serial_data_struct {
-  int analog;
-  bool digital[2];
-};
 
 class NecessitySerial: public SerialPort {
   public:
