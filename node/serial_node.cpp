@@ -65,11 +65,12 @@ int main(int argc, char* argv[])
   bool rv;
   NecessitySerial serial;
   ROS_INFO("opening a serial-usb module at %s", port.c_str());
-  rv = serial.start(port.c_str(), 250000);
+  rv = serial.start(port.c_str(), 115200);
   if (rv == false) {
     ROS_ERROR("failed to start the serial port");
     return -1;
   }
+  ROS_INFO("Seial port opened at %s", port.c_str());
 
   std::string publish_name="necessity_serial";
   publish_name+=port;
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
   ros::Publisher serial_pub = node_handle.advertise<necessity_serial::necessity_serial_msg>(publish_name, 1);
   necessity_serial::necessity_serial_msg serial_msg;
 
-  ros::Rate loop_rate(50);
+  ros::Rate loop_rate(20);
 
   serial_msg.serial=port;
 

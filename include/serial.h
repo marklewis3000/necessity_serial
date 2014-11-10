@@ -1,5 +1,5 @@
-#ifndef NECESSOTY_WIRELESS_MODULE_H
-#define NECESSOTY_WIRELESS_MODULE_H
+#ifndef NECESSOTY_SERIAL_MODULE_H
+#define NECESSOTY_SERIAL_MODULE_H
 
 #include "SerialPort.h"
 #include "necessity_serial/necessity_serial_msg.h"
@@ -40,6 +40,8 @@ class NecessitySerial: public SerialPort {
     ErrorCode processNewChar(unsigned char c);
     bool isDataGetReady(void) const;
     const necessity_serial::necessity_serial_msg& getData(void);
+
+    static const int PACKET_SIZE=5;
 
   private:
     unsigned char buf_[256];

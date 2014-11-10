@@ -34,21 +34,23 @@ void NecessitySerial::makeSleep(void) {
 }
 
 void NecessitySerial::readAllData(void){
-  readAcc();
+  //readAcc();
   readSignal();
 }
 
 void NecessitySerial::readAcc(void){
-  write_some("dd\r");
+  write_some("dd");
   read_some();
   //serial_data_.analog=read_buf_raw_[0];
 }
 
 void NecessitySerial::readSignal(void){
   write_some("mm\r");
-  read_some();
-  //serial_data_.digital[0]=read_buf_raw_[0] && 0x01;
-  //serial_data_.digital[1]=(read_buf_raw_[0] && 0x10) >> 1;
+  if (read_some()==PACKET_SIZE && read_buf_raw_[0]==0xFE) {
+    serial_data_.signal = read_buf_raw_[4];
+    for (int i=1; i<4; i++)
+      serial_data_.acc[i-1]= read_buf_raw_[i];
+  }
 }
 
 
@@ -86,10 +88,10 @@ const necessity_serial::necessity_serial_msg&
 }
 
 void  NecessitySerial::printData(void) {
-  std::cout << "analog: " << serial_data_.signal
-       << "  digital[0]: " << serial_data_.acc[0]
-       << "  digital[1]: " << serial_data_.acc[1]
-       << "  digital[2]: " << serial_data_.acc[2] << std::endl;
+  std::cout << "pressure: " << (unsigned int)serial_data_.signal
+       << "  acc[0]: " << (int)serial_data_.acc[0]
+       << "  acc[1]: " << (int)serial_data_.acc[1]
+       << "  acc[2]: " << (int)serial_data_.acc[2] << std::endl;
 }
 
 //------------------------------------------------------------------------------
