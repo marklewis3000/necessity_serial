@@ -29,6 +29,8 @@ class NecessitySerial: public SerialPort {
     NecessitySerial(void);
     virtual ~NecessitySerial(void);
 
+    void init(void);
+
     void readAllData(void);
     void readAcc(void);
     void readSignal(void);
@@ -44,12 +46,21 @@ class NecessitySerial: public SerialPort {
     static const int PACKET_SIZE=5;
 
   private:
+    float fixedToFloat(const short fixed, const unsigned char q) const;
+    unsigned short concat(const unsigned char msb, const unsigned char lsb) const;
+
     unsigned char buf_[256];
     unsigned char bufIndex_;
     necessity_serial::necessity_serial_msg serial_data_;
     bool dataReady_;
-    float fixedToFloat(const short fixed, const unsigned char q) const;
-    unsigned short concat(const unsigned char msb, const unsigned char lsb) const;
+
+    //roll over stuff
+    void rollOver(void);
+    bool rollover_;
+    bool inited_;
+    uint8_t offset_;
+    int rollover_direction_;
+    uint8_t prev_signal_;
 };
 
 #endif

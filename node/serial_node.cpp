@@ -78,12 +78,14 @@ int main(int argc, char* argv[])
   ros::Publisher serial_pub = node_handle.advertise<necessity_serial::necessity_serial_msg>(publish_name, 1);
   necessity_serial::necessity_serial_msg serial_msg;
 
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(50);
 
   serial_msg.serial=port;
 
-  while(node_handle.ok()) {
+  serial.init();
 
+  while(node_handle.ok()) {
+    loop_rate.sleep();
 
     try {
       serial.readAllData();
@@ -101,10 +103,10 @@ int main(int argc, char* argv[])
     serial_msg.signal=serial_data.signal;
     for (int i=0; i<3; i++)
       serial_msg.acc[i]=serial_data.acc[i];
+    serial_msg.acc_abs=serial_data.acc_abs;
     serial_msg.header.stamp = ros::Time::now();
 
     serial_pub.publish(serial_msg);
-    loop_rate.sleep();
 
     ros::spinOnce();
 
