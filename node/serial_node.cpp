@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   ros::Publisher serial_pub = node_handle.advertise<necessity_serial::necessity_serial_msg>(publish_name, 1);
   necessity_serial::necessity_serial_msg serial_msg;
 
-  ros::Rate loop_rate(50);
+  ros::Rate loop_rate(20);
 
   serial_msg.serial=port;
 

@@ -23,7 +23,7 @@ const double ACC_RATIO=1.0/44.0;
 // Methods
 
 NecessitySerial::NecessitySerial():
-  rollover_(true),
+  rollover_(false),
   dataReady_(false),
   inited_(false),
   rollover_direction_(0),
@@ -50,14 +50,22 @@ void NecessitySerial::makeSleep(void) {
 }
 
 void NecessitySerial::readAllData(void){
-  //readAcc();
-  readSignal();
+  readPressureOnly();
+  //readSignal();
 }
 
 void NecessitySerial::readAcc(void){
   write_some("dd");
   read_some();
   //serial_data_.analog=read_buf_raw_[0];
+}
+
+
+void NecessitySerial::readPressureOnly(void) {
+  write_some("MM\r");
+  if (read_some()==PACKET_SIZE_RAW_PRESSURE && read_buf_raw_[0]==0xFD) {
+    serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
+  }
 }
 
 void NecessitySerial::readSignal(void){

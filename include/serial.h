@@ -34,6 +34,7 @@ class NecessitySerial: public SerialPort {
     void readAllData(void);
     void readAcc(void);
     void readSignal(void);
+    void readPressureOnly(void);
 
     void makeSleep(void);
 
@@ -44,7 +45,7 @@ class NecessitySerial: public SerialPort {
     const necessity_serial::necessity_serial_msg& getData(void);
 
     static const int PACKET_SIZE=5;
-
+    static const int PACKET_SIZE_RAW_PRESSURE=3;
   private:
     float fixedToFloat(const short fixed, const unsigned char q) const;
     unsigned short concat(const unsigned char msb, const unsigned char lsb) const;
