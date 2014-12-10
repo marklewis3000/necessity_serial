@@ -118,7 +118,7 @@ bool NecessitySerial::isDataGetReady(void) const {
   return dataReady_;
 }
 
-const necessity_serial::necessity_serial_msg&
+const pressure_serial::pressure_serial_msg&
   NecessitySerial::getData(void) {
 
   dataReady_ = false;

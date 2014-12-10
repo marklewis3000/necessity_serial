@@ -35,7 +35,7 @@
 #include "ros/ros.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include <signal.h>
-#include "necessity_serial/necessity_serial_msg.h"
+#include "pressure_serial/pressure_serial_msg.h"
 
 bool quit = false;    // signal flag
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   sigfillset(&sa.sa_mask);
   sigaction(SIGINT,&sa,NULL);
 
-  ros::init(argc, argv, "necessity_serial", ros::init_options::NoSigintHandler);
+  ros::init(argc, argv, "pressure_serial", ros::init_options::NoSigintHandler);
   ros::NodeHandle node_handle, n_private("~");
 
   std::string port;
@@ -72,11 +72,11 @@ int main(int argc, char* argv[])
   }
   ROS_INFO("Seial port opened at %s", port.c_str());
 
-  std::string publish_name="necessity_serial";
+  std::string publish_name="pressure_serial";
   publish_name+=port;
 
-  ros::Publisher serial_pub = node_handle.advertise<necessity_serial::necessity_serial_msg>(publish_name, 1);
-  necessity_serial::necessity_serial_msg serial_msg;
+  ros::Publisher serial_pub = node_handle.advertise<pressure_serial::pressure_serial_msg>(publish_name, 1);
+  pressure_serial::pressure_serial_msg serial_msg;
 
   ros::Rate loop_rate(20);
 
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
       std::cout << "ABNORMAL ENDING";
     }
 
-    const necessity_serial::necessity_serial_msg&
+    const pressure_serial::pressure_serial_msg&
       serial_data=serial.getData();
 
     if (print_data)

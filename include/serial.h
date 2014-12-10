@@ -2,7 +2,7 @@
 #define NECESSOTY_SERIAL_MODULE_H
 
 #include "SerialPort.h"
-#include "necessity_serial/necessity_serial_msg.h"
+#include "pressure_serial/pressure_serial_msg.h"
 //------------------------------------------------------------------------------
 // Definitions
 
@@ -42,7 +42,7 @@ class NecessitySerial: public SerialPort {
 
     ErrorCode processNewChar(unsigned char c);
     bool isDataGetReady(void) const;
-    const necessity_serial::necessity_serial_msg& getData(void);
+    const pressure_serial::pressure_serial_msg& getData(void);
 
     static const int PACKET_SIZE=5;
     static const int PACKET_SIZE_RAW_PRESSURE=3;
@@ -52,7 +52,7 @@ class NecessitySerial: public SerialPort {
 
     unsigned char buf_[256];
     unsigned char bufIndex_;
-    necessity_serial::necessity_serial_msg serial_data_;
+    pressure_serial::pressure_serial_msg serial_data_;
     bool dataReady_;
 
     //roll over stuff

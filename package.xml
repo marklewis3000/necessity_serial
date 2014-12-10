@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>necessity_serial</name>
+  <name>pressure_serial</name>
   <version>0.0.0</version>
   <description>driver for a usb to serial dognle for a pressure sensor</description>
 
