@@ -35,6 +35,7 @@ class NecessitySerial: public SerialPort {
     void readAcc(void);
     void readSignal(void);
     void readPressureOnly(void);
+    void vibrate(bool is_on);
 
     void makeSleep(void);
 
@@ -43,6 +44,8 @@ class NecessitySerial: public SerialPort {
     ErrorCode processNewChar(unsigned char c);
     bool isDataGetReady(void) const;
     const pressure_serial::pressure_serial_msg& getData(void);
+
+    inline bool getVibrating(void) {return is_vibrating_;}
 
     static const int PACKET_SIZE=5;
     static const int PACKET_SIZE_RAW_PRESSURE=3;
@@ -62,6 +65,8 @@ class NecessitySerial: public SerialPort {
     uint8_t offset_;
     int rollover_direction_;
     uint8_t prev_signal_;
+
+    bool is_vibrating_;
 };
 
 #endif

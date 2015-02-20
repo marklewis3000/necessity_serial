@@ -36,12 +36,28 @@
 #include "std_msgs/UInt8MultiArray.h"
 #include <signal.h>
 #include "pressure_serial/pressure_serial_msg.h"
+#include <std_msgs/Bool.h>
 
-bool quit = false;    // signal flag
+static double prev_time;     // previous time for vibration
+static bool quit = false;    // signal flag
+const static double MIN_TIME=5.0;
+const static double VIB_TIME=0.5;
+static NecessitySerial serial;
 
 void got_signal(int)
 {
     quit = true;
+}
+
+void vibrationCallback(const std_msgs::Bool::ConstPtr& msg)
+{
+  ros::Time now = ros::Time::now();
+
+  if (msg->data && now.toSec()-prev_time>MIN_TIME) {
+    serial.vibrate(true);
+    prev_time = now.toSec();
+    ROS_INFO("vibration starts!");
+  }
 }
 
 
@@ -63,7 +79,7 @@ int main(int argc, char* argv[])
   n_private.param<bool>("print", print_data, false);
 
   bool rv;
-  NecessitySerial serial;
+
   ROS_INFO("opening a serial-usb module at %s", port.c_str());
   rv = serial.start(port.c_str(), 115200);
   if (rv == false) {
@@ -77,6 +93,13 @@ int main(int argc, char* argv[])
 
   ros::Publisher serial_pub = node_handle.advertise<pressure_serial::pressure_serial_msg>(publish_name, 1);
   pressure_serial::pressure_serial_msg serial_msg;
+
+  std::string subscribe_name="vibration";
+  subscribe_name+=port;
+  ros::Subscriber vibration_sub = node_handle.subscribe(
+                                               subscribe_name.c_str(),
+                                               1000,
+                                               vibrationCallback);
 
   ros::Rate loop_rate(20);
 
@@ -107,6 +130,10 @@ int main(int argc, char* argv[])
     serial_msg.header.stamp = ros::Time::now();
 
     serial_pub.publish(serial_msg);
+
+    ros::Time now = ros::Time::now();
+    if (now.toSec()-prev_time> VIB_TIME && serial.getVibrating())
+      serial.vibrate(false);  //turn off vibration
 
     ros::spinOnce();
 

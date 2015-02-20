@@ -27,7 +27,8 @@ NecessitySerial::NecessitySerial():
   dataReady_(false),
   inited_(false),
   rollover_direction_(0),
-  offset_(0)
+  offset_(0),
+  is_vibrating_(false)
 {
 }
 
@@ -47,6 +48,15 @@ void NecessitySerial::init(void) {
 
 void NecessitySerial::makeSleep(void) {
 
+}
+
+void NecessitySerial::vibrate(bool is_on) {
+  if (is_on)
+    write_some("1p\r");
+  else
+    write_some("0p\r");
+
+  is_vibrating_ = is_on;
 }
 
 void NecessitySerial::readAllData(void){
