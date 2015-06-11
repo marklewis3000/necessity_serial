@@ -37,33 +37,73 @@
 #include <signal.h>
 #include "pressure_serial/pressure_serial_msg.h"
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int8.h>
 
 static double prev_time;     // previous time for vibration
 static bool quit = false;    // signal flag
-const static double MIN_TIME=5.0;
+const static double MIN_TIME=1.0; // minimum time between vibrations
 const static double VIB_TIME=0.5;
+const static int LOOP_RATE=20; // main loop rate Hz. may affect vibration effects
 static NecessitySerial serial;
+static int vibEffect; // which vibration effect style to use. 0=off, see effects below
+static int MAX_EFFECT=8; // highest array index in effect table below
+int vibPattern[10][10] =
+  {                        // on/off patterns at Loop Rate:
+    {0,0,0,0,0,0,0,0,0,0}, // off
+    {1,1,1,1,1,1,1,1,1,0}, // long on
+    {1,0,0,0,0,0,0,0,0,0}, // bump
+    {1,0,1,0,0,0,0,0,0,0}, // bump bump
+    {1,0,1,0,1,0,0,0,0,0}, // bump bump bump
+    {1,0,0,1,0,0,0,0,0,0}, // bump bump slower
+    {1,0,0,0,1,0,0,0,1,0}, // bump bump even slower
+    {1,1,0,0,1,1,0,0,0,0}, // dash dash
+    {1,1,0,0,0,1,1,0,0,0}  // dash dash slower (effect 8)
+  };
+int vibStep; // index into vibEffect pattern, changes vibe on/off during each loop
 
 void got_signal(int)
 {
-    quit = true;
+  serial.vibrate(false);
+  quit = true;
 }
 
-void vibrationCallback(const std_msgs::Bool::ConstPtr& msg)
+void vibrationCallback(const std_msgs::Int8::ConstPtr& msg)
 {
   ros::Time now = ros::Time::now();
+  vibEffect = msg->data;
 
-  if (msg->data && now.toSec()-prev_time>MIN_TIME) {
-    serial.vibrate(true);
-    prev_time = now.toSec();
-    ROS_INFO("vibration starts!");
+  if (vibEffect == 0 || vibEffect > MAX_EFFECT)
+  {
+    serial.vibrate(false);
+    return;
   }
+  if (now.toSec()-prev_time < MIN_TIME)
+    return;
+
+  ROS_INFO("vibration effect# %d", msg->data);
+  serial.vibrate(true);
+  vibStep = 1;
+  prev_time = now.toSec();
 }
 
+void vibration_step()
+{
+  ros::Time now = ros::Time::now();
+  if (now.toSec()-prev_time> VIB_TIME && serial.getVibrating()
+      || vibEffect > MAX_EFFECT || vibStep >=10)
+  {
+    serial.vibrate(false);  //turn off vibration
+    return;
+  }
+
+  // update vibration according to effect pattern
+  bool vibe = vibPattern[vibEffect][vibStep];
+  serial.vibrate(vibe);
+  vibStep++;
+}
 
 int main(int argc, char* argv[])
 {
-
   struct sigaction sa;
   memset( &sa, 0, sizeof(sa) );
   sa.sa_handler = got_signal;
@@ -86,7 +126,7 @@ int main(int argc, char* argv[])
     ROS_ERROR("failed to start the serial port");
     return -1;
   }
-  ROS_INFO("Seial port opened at %s", port.c_str());
+  ROS_INFO("Serial port opened at %s", port.c_str());
 
   std::string publish_name="pressure_serial";
   publish_name+=port;
@@ -101,7 +141,7 @@ int main(int argc, char* argv[])
                                                1000,
                                                vibrationCallback);
 
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(LOOP_RATE);
 
   serial_msg.serial=port;
 
@@ -131,9 +171,7 @@ int main(int argc, char* argv[])
 
     serial_pub.publish(serial_msg);
 
-    ros::Time now = ros::Time::now();
-    if (now.toSec()-prev_time> VIB_TIME && serial.getVibrating())
-      serial.vibrate(false);  //turn off vibration
+    vibration_step();
 
     ros::spinOnce();
 
