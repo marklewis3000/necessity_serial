@@ -73,26 +73,43 @@ void NecessitySerial::readAcc(void){
 
 void NecessitySerial::readPressureOnly(void) {
   write_some("MM\r");
-  if (read_some()==SIZE_RAW_PRESSURE_PACKET && read_buf_raw_[0]==0xFD) {
+  int len = read_some();
+  if (! read_buf_raw_[0]==0xFD)
+    return;
+  if (len==SIZE_RAW_PRESSURE_PACKET)
+  {
     serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
     serial_data_.fall_count=read_buf_raw_[3]; // continuous fall_count
+  }
+  else if (len==SIZE_RAW_PRESSURE_PACKET-1) // no fall detection
+  {
+    serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
+    serial_data_.fall_count=0; // continuous fall_count
   }
 }
 
 void NecessitySerial::readSignal(void){
   write_some("mm\r");
   prev_signal_=serial_data_.signal_raw;
-
-  if (read_some()==SIZE_SUMMARY_PACKET && read_buf_raw_[0]==0xFE) {
-    serial_data_.signal_raw = read_buf_raw_[4];
-    serial_data_.acc_abs = 0.0;
-    for (int i=1; i<4; i++) {
-      double acc=ACC_RATIO*(read_buf_raw_[i]-ACC_ZERO);
-      serial_data_.acc[i-1]= read_buf_raw_[i];
-      serial_data_.acc_abs+=acc*acc;
+  int len = read_some();
+  if (read_buf_raw_[0] == 0xFE)
+  {
+    if (len == SIZE_SUMMARY_PACKET || len == SIZE_SUMMARY_PACKET-1)
+    {
+      serial_data_.signal_raw = read_buf_raw_[4];
+      serial_data_.acc_abs = 0.0;
+      for (int i = 1; i < 4; i++)
+      {
+        double acc = ACC_RATIO * (read_buf_raw_[i] - ACC_ZERO);
+        serial_data_.acc[i - 1] = read_buf_raw_[i];
+        serial_data_.acc_abs += acc * acc;
+      }
+      serial_data_.acc_abs = sqrt(serial_data_.acc_abs);
+      if (len == SIZE_SUMMARY_PACKET)
+        serial_data_.fall_count = read_buf_raw_[5]; // continuous fall_count
+      else
+        serial_data_.fall_count = 0; // older UID firmware
     }
-    serial_data_.acc_abs=sqrt(serial_data_.acc_abs);
-    serial_data_.fall_count=read_buf_raw_[5]; // continuous fall_count
   }
 
   if (inited_ && rollover_)
