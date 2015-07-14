@@ -167,6 +167,7 @@ int main(int argc, char* argv[])
     for (int i=0; i<3; i++)
       serial_msg.acc[i]=serial_data.acc[i];
     serial_msg.acc_abs=serial_data.acc_abs;
+    serial_msg.fall_count=serial_data.fall_count;
     serial_msg.header.stamp = ros::Time::now();
 
     serial_pub.publish(serial_msg);

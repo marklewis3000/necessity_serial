@@ -73,8 +73,9 @@ void NecessitySerial::readAcc(void){
 
 void NecessitySerial::readPressureOnly(void) {
   write_some("MM\r");
-  if (read_some()==PACKET_SIZE_RAW_PRESSURE && read_buf_raw_[0]==0xFD) {
+  if (read_some()==SIZE_RAW_PRESSURE_PACKET && read_buf_raw_[0]==0xFD) {
     serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
+    serial_data_.fall_count=read_buf_raw_[3]; // continuous fall_count
   }
 }
 
@@ -82,7 +83,7 @@ void NecessitySerial::readSignal(void){
   write_some("mm\r");
   prev_signal_=serial_data_.signal_raw;
 
-  if (read_some()==PACKET_SIZE && read_buf_raw_[0]==0xFE) {
+  if (read_some()==SIZE_SUMMARY_PACKET && read_buf_raw_[0]==0xFE) {
     serial_data_.signal_raw = read_buf_raw_[4];
     serial_data_.acc_abs = 0.0;
     for (int i=1; i<4; i++) {
@@ -91,7 +92,7 @@ void NecessitySerial::readSignal(void){
       serial_data_.acc_abs+=acc*acc;
     }
     serial_data_.acc_abs=sqrt(serial_data_.acc_abs);
-
+    serial_data_.fall_count=read_buf_raw_[5]; // continuous fall_count
   }
 
   if (inited_ && rollover_)
@@ -153,7 +154,9 @@ void  NecessitySerial::printData(void) {
        << "  acc_abs: " << serial_data_.acc_abs
        << "  acc[0]: " << (int)serial_data_.acc[0]
        << "  acc[1]: " << (int)serial_data_.acc[1]
-       << "  acc[2]: " << (int)serial_data_.acc[2] << std::endl;
+       << "  acc[2]: " << (int)serial_data_.acc[2]
+       << "  fallCnt: " << (int)serial_data_.fall_count
+       << std::endl;
 }
 
 //------------------------------------------------------------------------------
