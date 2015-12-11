@@ -48,7 +48,7 @@ class NecessitySerial: public SerialPort {
     inline bool getVibrating(void) {return is_vibrating_;}
 
     static const int SIZE_SUMMARY_PACKET=6;
-    static const int SIZE_RAW_PRESSURE_PACKET=4;
+    static const int SIZE_RAW_PRESSURE_PACKET=5;
   private:
     float fixedToFloat(const short fixed, const unsigned char q) const;
     unsigned short concat(const unsigned char msb, const unsigned char lsb) const;

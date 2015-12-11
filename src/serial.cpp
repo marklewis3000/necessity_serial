@@ -80,11 +80,13 @@ void NecessitySerial::readPressureOnly(void) {
   {
     serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
     serial_data_.fall_count=read_buf_raw_[3]; // continuous fall_count
+    serial_data_.finger_clutch = read_buf_raw_[4] > 50 ? true : false;
   }
   else if (len==SIZE_RAW_PRESSURE_PACKET-1) // no fall detection
   {
     serial_data_.signal=(read_buf_raw_[1]*256+read_buf_raw_[2]);
     serial_data_.fall_count=0; // continuous fall_count
+    serial_data_.finger_clutch=-1;
   }
 }
 

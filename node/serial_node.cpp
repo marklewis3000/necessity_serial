@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
     serial_msg.acc_abs=serial_data.acc_abs;
     serial_msg.fall_count=serial_data.fall_count;
     serial_msg.header.stamp = ros::Time::now();
+    serial_msg.finger_clutch = serial_data.finger_clutch;
 
     serial_pub.publish(serial_msg);
 
